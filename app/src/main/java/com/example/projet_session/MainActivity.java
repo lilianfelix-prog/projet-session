@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements LoginCallback.Log
 
     @Override
     public void onLoginFailure(String errorMessage) {
-        System.out.println("login failed: " + errorMessage );
+        System.out.println(errorMessage);
     }
 
     @Override
