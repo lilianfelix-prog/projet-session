@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- State: Disabled -->
+    <item android:state_enabled="false"
+        android:color="@color/button_disabled_gray" />
+
+    <!-- State: Pressed -->
+    <item android:state_pressed="true"
+        android:color="@color/button_pressed_blue" />
+
+    <!-- State: Hovered (for devices with pointers/mice) -->
+    <item android:state_hovered="true"
+        android:color="@color/button_hovered_blue" />
+
+    <!-- State: Focused (for keyboard/D-pad navigation) -->
+    <item android:state_focused="true"
+        android:color="@color/button_hovered_blue" /> <!-- Often same as hovered -->
+
+    <!-- Default state (must be last) -->
+    <item android:color="@color/button_normal_blue" />
+
+</selector>

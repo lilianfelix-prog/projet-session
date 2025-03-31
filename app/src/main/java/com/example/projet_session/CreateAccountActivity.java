@@ -3,8 +3,8 @@ package com.example.projet_session;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -21,32 +21,31 @@ import com.example.projet_session.auth.ServiceGenerator;
 
 import retrofit2.Call;
 
-public class MainActivity extends AppCompatActivity implements LoginCallback.LoginListener, View.OnClickListener {
-
-    private Button loginBtn;
+public class CreateAccountActivity extends AppCompatActivity implements LoginCallback.LoginListener, View.OnClickListener {
+    private Button registerBtn;
     private EditText emailInput;
     private EditText passwordInput;
-    private TextView createAccount;
+    private TextView login;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        setContentView(R.layout.create_account);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.register), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        loginBtn = findViewById(R.id.login_button);
+        registerBtn = findViewById(R.id.register_button);
         emailInput = findViewById(R.id.email_input);
         passwordInput = findViewById(R.id.password_input);
-        createAccount = findViewById(R.id.create_account);
+        login = findViewById(R.id.login);
 
-        loginBtn.setOnClickListener(this);
-        createAccount.setOnClickListener(view -> {
-            Intent createAccountView = new Intent(MainActivity.this, CreateAccountActivity.class);
+        registerBtn.setOnClickListener(this);
+        login.setOnClickListener(view -> {
+            Intent createAccountView = new Intent(CreateAccountActivity.this, MainActivity.class);
             startActivity(createAccountView);
         });
 
@@ -54,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements LoginCallback.Log
 
     @Override
     public void onClick(View view) {
-        if (view==loginBtn) {
+        if (view==registerBtn) {
             login(new LoginData(emailInput.getText().toString().trim(), passwordInput.getText().toString().trim()));
         }
     }
