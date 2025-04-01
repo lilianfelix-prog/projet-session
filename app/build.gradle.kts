@@ -38,10 +38,11 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
-
+    implementation(libs.coil)
     implementation(libs.okhttp)
     implementation(libs.gson)
     implementation(libs.constraintlayout)
+    implementation(libs.cardview)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

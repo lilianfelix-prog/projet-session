@@ -18,6 +18,7 @@ import com.example.projet_session.auth.LoginData;
 import com.example.projet_session.auth.LoginRequest;
 import com.example.projet_session.auth.LoginResponse;
 import com.example.projet_session.auth.ServiceGenerator;
+import com.example.projet_session.travels.TravelsActivity;
 
 import retrofit2.Call;
 
@@ -66,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements LoginCallback.Log
     }
     @Override
     public void onLoginSuccess(LoginResponse loginResponse) {
-        System.out.println("login successful");
+        System.out.println("login successful: " + loginResponse.getToken());
         Intent travelView = new Intent(this, TravelsActivity.class);
         startActivity(travelView);
     }

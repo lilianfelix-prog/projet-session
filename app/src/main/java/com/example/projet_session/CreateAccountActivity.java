@@ -13,15 +13,16 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.projet_session.auth.LoginCallback;
-import com.example.projet_session.auth.LoginData;
-import com.example.projet_session.auth.LoginRequest;
-import com.example.projet_session.auth.LoginResponse;
+import com.example.projet_session.auth.RegisterCallback;
+import com.example.projet_session.auth.RegisterData;
+import com.example.projet_session.auth.RegisterRequest;
+import com.example.projet_session.auth.RegisterResponse;
 import com.example.projet_session.auth.ServiceGenerator;
+import com.example.projet_session.travels.TravelsActivity;
 
 import retrofit2.Call;
 
-public class CreateAccountActivity extends AppCompatActivity implements LoginCallback.LoginListener, View.OnClickListener {
+public class CreateAccountActivity extends AppCompatActivity implements RegisterCallback.RegisterListener, View.OnClickListener {
     private Button registerBtn;
     private EditText emailInput;
     private EditText passwordInput;
@@ -54,24 +55,24 @@ public class CreateAccountActivity extends AppCompatActivity implements LoginCal
     @Override
     public void onClick(View view) {
         if (view==registerBtn) {
-            login(new LoginData(emailInput.getText().toString().trim(), passwordInput.getText().toString().trim()));
+            register(new RegisterData(emailInput.getText().toString().trim(), passwordInput.getText().toString().trim()));
         }
     }
 
-    private void login(LoginData loginData) {
-        LoginRequest loginRequest = ServiceGenerator.createService(LoginRequest.class, loginData.getEmail(), loginData.getPassword());
-        Call<LoginResponse> call = loginRequest.login();
-        call.enqueue(new LoginCallback(this));
+    private void register(RegisterData registerData) {
+        RegisterRequest registerRequest = ServiceGenerator.createService(RegisterRequest.class, registerData.getEmail(), registerData.getPassword());
+        Call<RegisterResponse> call = registerRequest.register();
+        call.enqueue(new RegisterCallback(this));
     }
     @Override
-    public void onLoginSuccess(LoginResponse loginResponse) {
+    public void onRegisterSuccess(RegisterResponse registerResponse) {
         System.out.println("login successful");
         Intent travelView = new Intent(this, TravelsActivity.class);
         startActivity(travelView);
     }
 
     @Override
-    public void onLoginFailure(String errorMessage) {
+    public void onRegisterFailure(String errorMessage) {
         System.out.println(errorMessage);
     }
 

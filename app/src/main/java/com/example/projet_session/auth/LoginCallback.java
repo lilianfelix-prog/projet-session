@@ -29,6 +29,7 @@ public class LoginCallback implements Callback<LoginResponse> {
         if (response.isSuccessful()) {
             LoginResponse loginResponse = response.body();
             if (loginResponse != null) {
+
                 loginListener.onLoginSuccess(loginResponse);
             } else {
                 loginListener.onLoginFailure("Response body is null");
