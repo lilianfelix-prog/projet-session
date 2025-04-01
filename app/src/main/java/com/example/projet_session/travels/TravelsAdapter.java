@@ -14,8 +14,9 @@ import com.example.projet_session.data.remote.DTO.TravelDTO;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TravelsAdapter extends RecyclerView.Adapter<TravelViewHolder>{
+public class TravelsAdapter extends RecyclerView.Adapter<TravelViewHolder> {
     private List<TravelDTO> travelList = new ArrayList<>();
+    private OnItemClickListener listener;
 
     public void setTravelList(List<TravelDTO> newTravelList){
         this.travelList.clear();
@@ -33,10 +34,15 @@ public class TravelsAdapter extends RecyclerView.Adapter<TravelViewHolder>{
         return new TravelViewHolder(view);
     }
 
+    public void setOnItemClickListener(OnItemClickListener listener){
+        this.listener = listener;
+    }
+
     @Override
     public void onBindViewHolder(@NonNull TravelViewHolder holder, int position) {
         TravelDTO travel = travelList.get(position);
         holder.bind(travel);
+        holder.bind(listener, position);
     }
 
     @Override
@@ -45,4 +51,6 @@ public class TravelsAdapter extends RecyclerView.Adapter<TravelViewHolder>{
         Log.d("TravelsAdapter", "getItemCount called, returning: " + count);
         return count;
     }
+
+
 }

@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements LoginCallback.Log
         System.out.println("login successful: " + loginResponse.getToken());
         Intent travelView = new Intent(this, TravelsActivity.class);
         startActivity(travelView);
+
     }
 
     @Override

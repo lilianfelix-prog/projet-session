@@ -4,10 +4,12 @@ import static android.content.ContentValues.TAG;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import 	android.view.WindowManager.LayoutParams;
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -30,7 +32,7 @@ import java.util.List;
 
 import retrofit2.Call;
 
-public class TravelsActivity extends AppCompatActivity implements TravelsCallback.TravelsListener, View.OnClickListener {
+public class TravelsActivity extends AppCompatActivity implements TravelsCallback.TravelsListener, OnItemClickListener {
 
     private RecyclerView recycleViewTravels;
     private TravelsAdapter travelsAdapter;
@@ -52,11 +54,12 @@ public class TravelsActivity extends AppCompatActivity implements TravelsCallbac
         recycleViewTravels = findViewById(R.id.recyclerView);
         setRecyclerView();
         fetchTravels();
+
     }
 
     private void setRecyclerView() {
-
         travelsAdapter = new TravelsAdapter();
+        travelsAdapter.setOnItemClickListener(this);
         recycleViewTravels.setLayoutManager(new LinearLayoutManager(this));
         Log.d(TAG, "Setting Adapter. Adapter is null? " + (travelsAdapter == null));
         recycleViewTravels.setAdapter(travelsAdapter);
@@ -69,11 +72,6 @@ public class TravelsActivity extends AppCompatActivity implements TravelsCallbac
         call.enqueue(new TravelsCallback(this));
     }
 
-
-    @Override
-    public void onClick(View view) {
-
-    }
 
     @Override
     public void onTravelsSuccess(TravelsResponse response) {
@@ -90,5 +88,19 @@ public class TravelsActivity extends AppCompatActivity implements TravelsCallbac
     @Override
     public void onNetworkError(Throwable t) {
         Log.e("TravelsActivity", "Network error: " + t.getMessage(), t);
+    }
+
+
+    @Override
+    public void onItemClick(View view, int position) {
+        view.setVisibility(View.VISIBLE);
+        Log.d("TravelsActivity", "Item clicked at position: " + position);
+
+    }
+
+    @Override
+    public void onItemLongClick(View view, int position) {
+        view.setVisibility(View.VISIBLE);
+        Log.d("TravelsActivity", "Item long clicked at position: " + position);
     }
 }

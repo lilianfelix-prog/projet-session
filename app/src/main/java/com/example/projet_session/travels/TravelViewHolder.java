@@ -17,6 +17,7 @@ public class TravelViewHolder extends RecyclerView.ViewHolder {
     TextView textViewDestinationName;
     ImageView imageViewTravel;
     TextView textViewDestinationPrice;
+    TextView textViewDescription;
 
     public TravelViewHolder(@NonNull View itemView) {
         super(itemView);
@@ -24,11 +25,13 @@ public class TravelViewHolder extends RecyclerView.ViewHolder {
         textViewDestinationName = itemView.findViewById(R.id.textViewDestinationName);
         textViewDestinationPrice = itemView.findViewById(R.id.textViewDestinationPrice);
         imageViewTravel = itemView.findViewById(R.id.imageViewDestination);
+        textViewDescription = itemView.findViewById(R.id.textViewDescription);
     }
 
     public void bind(TravelDTO travel){
         textViewDestinationName.setText(travel.getDestination());
         textViewDestinationPrice.setText("$" + travel.getPrice());
+        textViewDescription.setText(travel.getDescription());
 
         if (travel.getImgUrl() != null && !travel.getImgUrl().isEmpty()) {
             ImageLoader imageLoader = Coil.imageLoader(itemView.getContext());
@@ -44,5 +47,13 @@ public class TravelViewHolder extends RecyclerView.ViewHolder {
             imageViewTravel.setVisibility(View.GONE);
         }
 
+    }
+    public void bind(OnItemClickListener listener, int position){
+        itemView.setOnClickListener(v -> listener.onItemClick(v, position));
+
+        itemView.setOnLongClickListener(v -> {
+            listener.onItemLongClick(v, position);
+            return true;
+        });
     }
 }
