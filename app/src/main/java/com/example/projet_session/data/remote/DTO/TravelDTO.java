@@ -7,7 +7,6 @@ public class TravelDTO {
     private String destination;
     private double price;
     private String imgUrl;
-
     public TravelDTO(){}
 
     public TravelDTO(int id, String description, String destination, double price, String imgUrl) {

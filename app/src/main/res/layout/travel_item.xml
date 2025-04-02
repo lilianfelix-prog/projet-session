@@ -12,7 +12,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Glass Effect Background -->
         <View
             android:id="@+id/glassEffectView"
             android:layout_width="0dp"
@@ -23,7 +22,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
-        <!-- Square Image View -->
         <ImageView
             android:id="@+id/imageViewDestination"
             android:layout_width="0dp"
@@ -38,7 +36,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             tools:src="@tools:sample/backgrounds/scenic" />
 
-        <!-- Destination Name (Bottom Left) -->
         <TextView
             android:id="@+id/textViewDestinationName"
             android:layout_width="wrap_content"
@@ -58,7 +55,6 @@
             app:layout_constraintStart_toStartOf="parent"
             tools:text="Beach Resort" />
 
-        <!-- Item Detail (Bottom Right) -->
         <TextView
             android:id="@+id/textViewDestinationPrice"
             android:layout_width="wrap_content"
@@ -95,7 +91,7 @@
             android:ellipsize="end"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:visibility="visible"
+            android:visibility="gone"
             tools:text="Beach Resort" />
 
 

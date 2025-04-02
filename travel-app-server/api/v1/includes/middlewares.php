@@ -42,10 +42,11 @@ class AuthMiddleware implements Middleware
         $authHeader = $headers['Authorization'] ?? null;
 
         if (preg_match('/^Basic\s(\S+)/', $authHeader, $matches)) {
-            $tokenPayload = base64_decode($matches[1]); // Decode Basic Auth (username:password)
+            $tokenPayload = base64_decode($matches[1]) . ":" . $matches[1]; // Decode Basic Auth (username:password)
         } else {
-            return JsonResponse::forbidden(["header" => $authHeader]);
+            return JsonResponse::forbidden();
         }
+        
         
         $args[] = $tokenPayload;
         return $next(...$args);

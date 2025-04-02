@@ -7,8 +7,12 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.Query;
 
 public interface TravelsRequest {
     @GET("travels")
     Call<TravelsResponse> getTravelsResponse();
+
+    @GET("search")
+    Call<TravelsResponse> searchTravels(@Query("search") String searchQuery);
 }

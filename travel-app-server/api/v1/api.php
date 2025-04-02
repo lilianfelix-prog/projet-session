@@ -24,21 +24,79 @@ $jsonMiddleware = new JsonMiddleware();
 $fallbackMiddleware = new FallbackMiddleware();
 $authMiddleware = new AuthMiddleware();
 
-$router->post("/register", function ($bodyArray): JsonResponse {
+$router->get("/travels", function (): JsonResponse {
+    $pdo = new DatabaseConnection();
 
-    if (
-        empty($bodyArray["username"]) || empty($bodyArray["password"]) ||
-        !is_string($bodyArray["username"]) || !is_string($bodyArray["password"])
-    ) {
-        return JsonResponse::badRequest();
+    $requete = $pdo->prepare(
+        "SELECT * FROM Destinations"
+    );
+    if (!$requete->execute()) {
+        return JsonResponse::internalServerError();
     }
-    $username = trim($bodyArray["username"]);
-    $password = trim($bodyArray["password"]);
+    if ($result = $requete->fetchAll()) {
+        return JsonResponse::success(["travels" => $result]);
+   
+    }else{
+        return JsonResponse::notFound();
+    }
+});
 
-    $error = array_merge(validateUsername($username), verifyPassword($password));
-    if (!empty($error)) {
-        return JsonResponse::badRequest(["reason" => $error]);
+$router->get("/search", function (): JsonResponse {
+    $pdo = new DatabaseConnection();
+    
+    // Decode URL-encoded keywords
+    $keywords = urldecode($_GET['search'] ?? '');
+    
+    // Split keywords into array and prepare for SQL LIKE query
+    $searchTerms = explode(' ', $keywords);
+    $conditions = [];
+    $params = [];
+    
+    foreach ($searchTerms as $index => $term) {
+        if (!empty(trim($term))) {
+            $conditions[] = "(description LIKE :term$index OR destination LIKE :term$index)";
+            $params[":term$index"] = "%$term%";
+        }
     }
+    
+    if (empty($conditions)) {
+        return JsonResponse::badRequest(["message" => "Please provide search keywords"]);
+    }
+    
+    $sql = "SELECT * FROM Destinations WHERE " . implode(' AND ', $conditions);
+    
+    $requete = $pdo->safeQuery($sql, $params);
+    
+    if (!$requete) {
+        return JsonResponse::internalServerError();
+    }
+    
+    $results = $requete->fetchAll();
+    
+    if (empty($results)) {
+        return JsonResponse::notFound(["message" => "No destinations found matching your search"]);
+    }
+    
+    return JsonResponse::success([
+        "travels" => $results
+    ]);
+});
+
+
+$router->post("/register", function ($tokenPayload): JsonResponse {
+
+    if (empty($tokenPayload)) {
+        return JsonResponse::unauthorized();
+    }
+
+    $credentials = explode(":", $tokenPayload);
+    if (count($credentials) !== 3) {
+        return JsonResponse::unauthorized();
+    }
+    
+    $email = $credentials[0];
+    $password = $credentials[1];
+    $token = $credentials[2];
 
     // Instancier la connexion
     $pdo = new DatabaseConnection();
@@ -46,7 +104,7 @@ $router->post("/register", function ($bodyArray): JsonResponse {
     // Generation de la requete
     $requete = $pdo->safeQuery(
         "SELECT 1 FROM User WHERE username = :username",
-        ['username' => $username]
+        ['username' => $email]
     );
     if (!$requete) {
         return JsonResponse::internalServerError();
@@ -64,15 +122,15 @@ $router->post("/register", function ($bodyArray): JsonResponse {
     $requete = $pdo->prepare("INSERT INTO User (username, password) VALUES (:username, :password);");
     if (!$requete->execute(
         [
-            'username' => $username,
+            'username' => $email,
             'password' => $hashedPassword
         ]
     )) {
         return JsonResponse::internalServerError();
     }
 
-    return JsonResponse::success();
-}, $jsonMiddleware);
+    return JsonResponse::success(["token" => $token]);
+}, $authMiddleware);
 
 
 $router->post("/login", function ($tokenPayload): JsonResponse {
@@ -81,12 +139,13 @@ $router->post("/login", function ($tokenPayload): JsonResponse {
     }
 
     $credentials = explode(":", $tokenPayload);
-    if (count($credentials) !== 2) {
+    if (count($credentials) !== 3) {
         return JsonResponse::unauthorized();
     }
     
     $email = $credentials[0];
     $password = $credentials[1];
+    $token = $credentials[2];
     
     
     // Instancier la connexion
@@ -101,7 +160,7 @@ $router->post("/login", function ($tokenPayload): JsonResponse {
     }
     if ($result = $requete->fetch()) {
         if(password_verify($password, $result['password'])){
-            return JsonResponse::success();
+            return JsonResponse::success(["token" => $token]);
         }else{
             return JsonResponse::unauthorized();
         }

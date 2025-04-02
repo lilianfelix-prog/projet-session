@@ -27,6 +27,10 @@ public class TravelsAdapter extends RecyclerView.Adapter<TravelViewHolder> {
         notifyDataSetChanged();
     }
 
+    public TravelDTO getItem(int position) {
+        return travelList.get(position);
+    }
+
     @NonNull
     @Override
     public TravelViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

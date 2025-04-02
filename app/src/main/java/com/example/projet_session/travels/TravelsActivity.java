@@ -2,12 +2,17 @@ package com.example.projet_session.travels;
 
 import static android.content.ContentValues.TAG;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import 	android.view.WindowManager.LayoutParams;
+import android.view.WindowManager.LayoutParams;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,9 +30,6 @@ import com.example.projet_session.data.remote.DTO.TravelsResponse;
 import com.example.projet_session.data.remote.TravelsCallback;
 import com.example.projet_session.data.remote.TravelsRequest;
 
-
-
-
 import java.util.List;
 
 import retrofit2.Call;
@@ -36,8 +38,8 @@ public class TravelsActivity extends AppCompatActivity implements TravelsCallbac
 
     private RecyclerView recycleViewTravels;
     private TravelsAdapter travelsAdapter;
-
-
+    private EditText editTextSearch;
+    private ImageView searchIcon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,11 +52,42 @@ public class TravelsActivity extends AppCompatActivity implements TravelsCallbac
             return insets;
         });
 
+        // Initialize search views
+        editTextSearch = findViewById(R.id.editTextSearch);
+        searchIcon = findViewById(R.id.searchIcon);
+
+        // Set up search functionality
+        setupSearch();
 
         recycleViewTravels = findViewById(R.id.recyclerView);
         setRecyclerView();
         fetchTravels();
+    }
 
+    private void setupSearch() {
+        // Handle search icon click
+        searchIcon.setOnClickListener(v -> performSearch());
+
+        // Handle enter key press
+        editTextSearch.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH) {
+                performSearch();
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private void performSearch() {
+        String searchQuery = editTextSearch.getText().toString().trim();
+        if (!searchQuery.isEmpty()) {
+            TravelsRequest travelRequest = ServiceGenerator.createService(TravelsRequest.class);
+            Call<TravelsResponse> call = travelRequest.searchTravels(searchQuery);
+            call.enqueue(new TravelsCallback(this));
+        } else {
+            
+            fetchTravels();
+        }
     }
 
     private void setRecyclerView() {
@@ -75,7 +108,6 @@ public class TravelsActivity extends AppCompatActivity implements TravelsCallbac
 
     @Override
     public void onTravelsSuccess(TravelsResponse response) {
-        Log.d(TAG, "Data received, size: " + response.getTravels().size() + ". Calling submitList.");
         travelsAdapter.setTravelList(response.getTravels());
         Log.d("TravelsActivity", "Fetched travels");
     }
@@ -93,7 +125,31 @@ public class TravelsActivity extends AppCompatActivity implements TravelsCallbac
 
     @Override
     public void onItemClick(View view, int position) {
-        view.setVisibility(View.VISIBLE);
+        TextView textViewDescription = view.findViewById(R.id.textViewDescription);
+        if (textViewDescription.getVisibility() == View.VISIBLE) {
+
+            textViewDescription.setVisibility(View.GONE);
+
+            Intent reservevationIntent = new Intent(this, ReserveActivity.class);
+            TravelDTO clickedTravel = travelsAdapter.getItem(position);
+
+            int id = clickedTravel.getId();
+            String destination = clickedTravel.getDestination();
+            String description = clickedTravel.getDescription();
+            double price = clickedTravel.getPrice();
+            String imgUrl = clickedTravel.getImgUrl();
+
+            reservevationIntent.putExtra("id", id);
+            reservevationIntent.putExtra("destination", destination);
+            reservevationIntent.putExtra("description", description);
+            reservevationIntent.putExtra("price", price);
+            reservevationIntent.putExtra("imgUrl", imgUrl);
+
+            startActivity(reservevationIntent);
+
+        } else {
+            textViewDescription.setVisibility(View.VISIBLE);
+        }
         Log.d("TravelsActivity", "Item clicked at position: " + position);
 
     }
