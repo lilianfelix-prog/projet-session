@@ -29,7 +29,9 @@ import com.example.projet_session.data.remote.DTO.TravelDTO;
 import com.example.projet_session.data.remote.DTO.TravelsResponse;
 import com.example.projet_session.data.remote.TravelsCallback;
 import com.example.projet_session.data.remote.TravelsRequest;
+import com.example.projet_session.data.remote.DTO.TripDTO;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -99,7 +101,7 @@ public class TravelsActivity extends AppCompatActivity implements TravelsCallbac
     }
 
     private void fetchTravels() {
-        //TODO pass the auth token
+        
         TravelsRequest travelRequest = ServiceGenerator.createService(TravelsRequest.class);
         Call<TravelsResponse> call = travelRequest.getTravelsResponse();
         call.enqueue(new TravelsCallback(this));
@@ -127,31 +129,40 @@ public class TravelsActivity extends AppCompatActivity implements TravelsCallbac
     public void onItemClick(View view, int position) {
         TextView textViewDescription = view.findViewById(R.id.textViewDescription);
         if (textViewDescription.getVisibility() == View.VISIBLE) {
-
             textViewDescription.setVisibility(View.GONE);
 
             Intent reservevationIntent = new Intent(this, ReserveActivity.class);
             TravelDTO clickedTravel = travelsAdapter.getItem(position);
 
-            int id = clickedTravel.getId();
-            String destination = clickedTravel.getDestination();
-            String description = clickedTravel.getDescription();
-            double price = clickedTravel.getPrice();
-            String imgUrl = clickedTravel.getImgUrl();
+            // Pass all travel data
+            reservevationIntent.putExtra("id", clickedTravel.getId());
+            reservevationIntent.putExtra("destination", clickedTravel.getDestination());
+            reservevationIntent.putExtra("description", clickedTravel.getDescription());
+            reservevationIntent.putExtra("price", clickedTravel.getPrice());
+            reservevationIntent.putExtra("imgUrl", clickedTravel.getImgUrl());
+            reservevationIntent.putExtra("dureeJours", clickedTravel.getDureeJours());
+            reservevationIntent.putExtra("typeDeVoyage", clickedTravel.getTypeDeVoyage());
+            reservevationIntent.putExtra("activitesIncluses", clickedTravel.getActivitesIncluses());
 
-            reservevationIntent.putExtra("id", id);
-            reservevationIntent.putExtra("destination", destination);
-            reservevationIntent.putExtra("description", description);
-            reservevationIntent.putExtra("price", price);
-            reservevationIntent.putExtra("imgUrl", imgUrl);
+            // Pass all available trips
+            if (clickedTravel.getTrips() != null && !clickedTravel.getTrips().isEmpty()) {
+                ArrayList<String> dates = new ArrayList<>();
+                ArrayList<String> places = new ArrayList<>();
+                
+                for (TripDTO trip : clickedTravel.getTrips()) {
+                    dates.add(trip.getDate());
+                    places.add(trip.getNbPlacesDisponibles());
+                }
+                
+                reservevationIntent.putStringArrayListExtra("dates", dates);
+                reservevationIntent.putStringArrayListExtra("places", places);
+            }
 
             startActivity(reservevationIntent);
-
         } else {
             textViewDescription.setVisibility(View.VISIBLE);
         }
         Log.d("TravelsActivity", "Item clicked at position: " + position);
-
     }
 
     @Override
