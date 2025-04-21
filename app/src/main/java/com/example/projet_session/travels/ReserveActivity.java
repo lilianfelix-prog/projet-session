@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -18,19 +19,25 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.projet_session.R;
+import com.example.projet_session.auth.ServiceGenerator;
 import com.example.projet_session.data.local.DatabaseHelper;
+import com.example.projet_session.data.remote.DTO.ReserveRequestDTO;
+import com.example.projet_session.data.remote.DTO.ReserveResponse;
+import com.example.projet_session.data.remote.ReserveCallback;
+import com.example.projet_session.data.remote.ReserveRequest;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import coil.Coil;
 import coil.ImageLoader;
 import coil.request.ImageRequest;
+import retrofit2.Call;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ReserveActivity extends AppCompatActivity {
+public class ReserveActivity extends AppCompatActivity implements ReserveCallback.ReserveListener{
 
     private String id;
     private String destination;
@@ -51,6 +58,7 @@ public class ReserveActivity extends AppCompatActivity {
     private Spinner dateSpinner;
     private ArrayAdapter<String> dateAdapter;
     private Map<String, String> dateToPlacesMap;
+    private Float totalMontant = 0f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,10 +71,9 @@ public class ReserveActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Initialize database helper
+        // Initialise database helper
         databaseHelper = new DatabaseHelper(this);
 
-        // Get all data from intent
         id = getIntent().getStringExtra("id");
         destination = getIntent().getStringExtra("destination");
         description = getIntent().getStringExtra("description");
@@ -78,10 +85,8 @@ public class ReserveActivity extends AppCompatActivity {
         availableDates = getIntent().getStringArrayListExtra("dates");
         availablePlaces = getIntent().getStringArrayListExtra("places");
 
-        // Initialize views
         initializeViews();
 
-        // Set up click listeners
         findViewById(R.id.backButton).setOnClickListener(v -> finish());
         reserveButton.setOnClickListener(v -> handleReservation());
     }
@@ -101,14 +106,12 @@ public class ReserveActivity extends AppCompatActivity {
         reserveButton = findViewById(R.id.reserveButton);
         dateSpinner = findViewById(R.id.dateSpinner);
 
-        // Set text content
         destinationTitle.setText(destination);
         priceText.setText("$" + price);
         descriptionText.setText(description);
         durationText.setText(dureeJours + " Days");
         accommodationText.setText(typeDeVoyage);
 
-        // Load image using Coil
         if (imgUrl != null && !imgUrl.isEmpty()) {
             ImageLoader imageLoader = Coil.imageLoader(this);
             ImageRequest request = new ImageRequest.Builder(this)
@@ -122,22 +125,21 @@ public class ReserveActivity extends AppCompatActivity {
             destinationImage.setVisibility(View.GONE);
         }
 
-        // Set up date spinner
         ArrayList<String> dateWithPlaces = new ArrayList<>();
         dateToPlacesMap = new HashMap<>();
         if (availableDates != null && availablePlaces != null) {
             for (int i = 0; i < availableDates.size(); i++) {
                 String date = availableDates.get(i);
                 String places = availablePlaces.get(i);
-                dateWithPlaces.add(date + " (" + places + " places available)");
+                dateWithPlaces.add(date + " (" + places + " places libres)");
                 dateToPlacesMap.put(date, places);
             }
         }
         dateAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, dateWithPlaces);
         dateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        dateAdapter.notifyDataSetChanged();
         dateSpinner.setAdapter(dateAdapter);
 
-        // Set up places input validation
         placesInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -171,6 +173,8 @@ public class ReserveActivity extends AppCompatActivity {
             } else {
                 placesInput.setError(null);
                 reserveButton.setEnabled(true);
+                totalMontant = requestedPlaces * Float.parseFloat(price);
+                reserveButton.setText("Reserve $" + totalMontant);
                 return true;
             }
         }
@@ -207,46 +211,86 @@ public class ReserveActivity extends AppCompatActivity {
         return isValid;
     }
 
-    private void handleReservation() {
+
+    String selectedDate;
+    String nbPlaces;
+    String fullName;
+    String email;
+    String phone;
+    float montant;
+    int requestedPlaces;
+
+    /**
+     * initialiser les variables de la reservation
+     */
+    private void setInputVariables(){
         if (!validateInputs()) {
             return;
         }
-
         try {
             String selectedDateWithPlaces = (String) dateSpinner.getSelectedItem();
             if (selectedDateWithPlaces == null) {
                 Toast.makeText(this, "Please select a date", Toast.LENGTH_SHORT).show();
                 return;
             }
-            
-            String selectedDate = selectedDateWithPlaces.substring(0, selectedDateWithPlaces.indexOf(" ("));
-            String nbPlaces = placesInput.getText().toString();
-            String fullName = fullNameInput.getText().toString();
-            String email = emailInput.getText().toString();
-            String phone = phoneInput.getText().toString();
-            
-            if (nbPlaces.isEmpty() || fullName.isEmpty() || email.isEmpty() || phone.isEmpty()) {
-                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
-                return;
-            }
 
-            float montant = Float.parseFloat(price);
-            int requestedPlaces = Integer.parseInt(nbPlaces);
-            databaseHelper.addReservation(
+            selectedDate = selectedDateWithPlaces.substring(0, selectedDateWithPlaces.indexOf(" ("));
+            nbPlaces = placesInput.getText().toString();
+            fullName = fullNameInput.getText().toString();
+            email = emailInput.getText().toString();
+            phone = phoneInput.getText().toString();
+            montant = totalMontant;
+            requestedPlaces = Integer.parseInt(nbPlaces);
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Please enter valid numbers", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    /**
+     * envoyer la requete de reservation pour changer le nombre de places disponible
+     */
+    private void handleReservation() {
+
+            setInputVariables();
+
+            ReserveRequest reserveRequest = ServiceGenerator.createService(ReserveRequest.class);
+            Call<ReserveResponse> call = reserveRequest.reserve(new ReserveRequestDTO(selectedDate, nbPlaces, id));
+            call.enqueue(new ReserveCallback(this));
+
+
+    }
+
+    /**
+     * Si la requete est reussi, ajouter la reservation dans la base de donnees local
+     * @param response
+     */
+    @Override
+    public void onReserveSuccess(ReserveResponse response) {
+        databaseHelper.addReservation(
                 destination,
                 selectedDate,
                 montant,
-                "Pending",
+                "RESERVED",
                 requestedPlaces,
                 fullName,
                 email,
                 phone
-            );
+        );
+        Toast.makeText(this, "Reservation reussi!", Toast.LENGTH_SHORT).show();
+        finish();
+    }
 
-            Toast.makeText(this, "Reservation successful!", Toast.LENGTH_SHORT).show();
-            finish();
-        } catch (NumberFormatException e) {
-            Toast.makeText(this, "Please enter valid numbers", Toast.LENGTH_SHORT).show();
-        }
+    @Override
+    public void onReserveFailure(String errorMessage) {
+        Toast.makeText(this, "reservation non reussi...", Toast.LENGTH_SHORT).show();
+        Log.e("Reservation Failure",errorMessage);
+    }
+
+    @Override
+    public void onNetworkError(Throwable t) {
+        Toast.makeText(this, "reservation non reussi...", Toast.LENGTH_SHORT).show();
+        Log.e("Reservation Failure", t.getMessage());
+
     }
 }

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Filter Options"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Budget Range:"
+        android:textSize="16sp"
+        android:layout_marginTop="8dp"/>
+
+    <com.google.android.material.slider.RangeSlider
+        android:id="@+id/budget_slider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:valueFrom="0"
+        android:valueTo="1000"
+        android:stepSize="10"
+        app:values="@array/initial_slider_values"/>
+
+    <TextView
+        android:id="@+id/slider_value_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="$0 - $1000"
+        android:textAlignment="center"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Options:"
+        android:textSize="16sp"
+        android:layout_marginTop="8dp"/>
+
+    <CheckBox
+        android:id="@+id/option_one"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="aventure"/>
+
+    <CheckBox
+        android:id="@+id/option_two"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="culturel"/>
+
+    <CheckBox
+        android:id="@+id/option_three"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="gastronomique"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:layout_marginTop="16dp">
+
+        <Button
+            android:id="@+id/reset_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset"
+            android:layout_marginRight="5dp"
+            app:backgroundTint="@color/button_disabled_gray"
+            style="@style/Widget.MaterialComponents.Button.TextButton"/>
+
+        <Button
+            android:id="@+id/apply_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Apply"
+            app:backgroundTint="@color/button_normal_blue"
+            style="@style/Widget.MaterialComponents.Button"/>
+    </LinearLayout>
+</LinearLayout>

@@ -8,6 +8,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ServiceGenerator extends Application {
+    //ip doit etre 10.0.2.2 quand emulator est utilise, sinon il faut mettre l'ip de l'appareil
     private static final String BASE_URL = "http://10.0.2.2/travel-app-server/api/v1/";
 
     private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
@@ -23,6 +24,7 @@ public class ServiceGenerator extends Application {
         return createService(serviceClass, null, null);
     }
 
+
     public static <S> S createService(Class<S> serviceClass, String email, String password){
         if(!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password)){
             String token = Credentials.basic(email, password);
@@ -30,6 +32,7 @@ public class ServiceGenerator extends Application {
         }
         return createService(serviceClass, null);
     }
+
 
     private static <S> S createService(Class<S> serviceClass, final String token) {
         if (!TextUtils.isEmpty(token)) {

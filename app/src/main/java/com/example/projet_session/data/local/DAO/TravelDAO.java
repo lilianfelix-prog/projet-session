@@ -1,27 +1,56 @@
 package com.example.projet_session.data.local.DAO;
 
-import com.example.projet_session.data.local.entity.Travel;
-
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class TravelDAO {
-    private List<Travel> travelList = new ArrayList<>();
+    private String montant;
+    private String destination;
+    private String selectedDate;
+    private String status;
+    private String requestedPlaces;
+    private String fullName;
+    private String email;
+    private String phone;
 
-    public TravelDAO(){
-
+    public TravelDAO(String montant, String destination, String selectedDate, String status, String requestedPlaces, String fullName, String email, String phone) {
+        this.montant = montant;
+        this.destination = destination;
+        this.selectedDate = selectedDate;
+        this.status = status;
+        this.requestedPlaces = requestedPlaces;
+        this.fullName = fullName;
+        this.email = email;
+        this.phone = phone;
     }
 
-    public List<Travel> getTravels(){
-        return travelList;
+    public String getMontant() {
+        return montant;
     }
 
-    public void addTravels(List<Travel> travels){
-        travelList.addAll(travels);
+    public String getDestination() {
+        return destination;
     }
 
-    public void clearTravels(){
-        travelList.clear();
+    public String getSelectedDate() {
+        return selectedDate;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public String getRequestedPlaces() {
+        return requestedPlaces;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPhone() {
+        return phone;
     }
 }

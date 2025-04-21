@@ -46,7 +46,6 @@ public class TravelsCallback implements Callback<TravelsResponse> {
             travelsListener.onTravelsFailure(errorMessage);
             Log.e(TAG, errorMessage);
             try {
-                // Attempt to get error body if available
                 String errorBody = response.errorBody() != null ? response.errorBody().string() : "No error body";
                 Log.e(TAG, "Error Body: " + errorBody);
             } catch (Exception e) {

@@ -25,6 +25,8 @@
         <activity android:name=".travels.TravelsActivity"/>
         <activity android:name=".CreateAccountActivity"/>
         <activity android:name=".travels.ReserveActivity"/>
+        <activity android:name=".travels.ReservationsHistoryActivity"/>
+
     </application>
 
 </manifest>

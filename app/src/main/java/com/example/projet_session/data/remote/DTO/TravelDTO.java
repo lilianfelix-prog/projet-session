@@ -2,7 +2,6 @@ package com.example.projet_session.data.remote.DTO;
 
 import java.util.List;
 
-//this class represents a travel object that match the JSON response
 public class TravelDTO {
     private String id;
     private String nom_voyage;

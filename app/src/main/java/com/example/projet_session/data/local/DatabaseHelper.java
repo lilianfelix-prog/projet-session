@@ -14,18 +14,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_RESERVATIONS = "reservations";
     
     // Column names
-    private static final String COLUMN_ID = "id";
-    private static final String COLUMN_DESTINATION = "destination";
-    private static final String COLUMN_DATE = "date";
-    private static final String COLUMN_MONTANT = "montant";
-    private static final String COLUMN_STATUT = "statut";
-    private static final String COLUMN_NB_PLACES = "nb_places";
-    private static final String COLUMN_FULL_NAME = "full_name";
-    private static final String COLUMN_EMAIL = "email";
-    private static final String COLUMN_PHONE = "phone";
+    public static final String COLUMN_ID = "id";
+    public static final String COLUMN_DESTINATION = "destination";
+    public static final String COLUMN_DATE = "date";
+    public static final String COLUMN_MONTANT = "montant";
+    public static final String COLUMN_STATUT = "statut";
+    public static final String COLUMN_NB_PLACES = "nb_places";
+    public static final String COLUMN_FULL_NAME = "full_name";
+    public static final String COLUMN_EMAIL = "email";
+    public static final String COLUMN_PHONE = "phone";
 
     // Create table SQL query
-    private static final String CREATE_TABLE_RESERVATIONS = 
+    private static final String CREATE_TABLE_RESERVATIONS =
         "CREATE TABLE " + TABLE_RESERVATIONS + "("
         + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
         + COLUMN_DESTINATION + " TEXT,"
@@ -49,17 +49,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        // Drop older table if existed
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_RESERVATIONS);
-        // Create tables again
         onCreate(sqLiteDatabase);
     }
 
-    public void addReservation(String destination, String date, float montant, String statut, 
+    public void addReservation(String destination, String date, float montant, String statut,
                              int nbPlaces, String fullName, String email, String phone) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
-        
+
         values.put(COLUMN_DESTINATION, destination);
         values.put(COLUMN_DATE, date);
         values.put(COLUMN_MONTANT, montant);
@@ -75,13 +73,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public Cursor getReservations() {
         SQLiteDatabase db = getReadableDatabase();
-        return db.query(TABLE_RESERVATIONS, null, null, null, null, null, 
+        return db.query(TABLE_RESERVATIONS, null, null, null, null, null,
                        COLUMN_DATE + " DESC");
     }
 
     public void deleteReservation(String id) {
         SQLiteDatabase db = getWritableDatabase();
         db.delete(TABLE_RESERVATIONS, COLUMN_ID + " = ?", new String[]{id});
+        db.close();
+    }
+    public void updateReservationStatus(String id, String newStatus) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_STATUT, newStatus);
+
+        db.update(TABLE_RESERVATIONS, values, COLUMN_ID + " = ?", new String[]{id});
         db.close();
     }
 }
